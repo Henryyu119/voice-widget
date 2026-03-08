@@ -29,14 +29,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: voice-widget-release
-        path: app/build/outputs/apk/release/app-release-unsigned.apk
-    
-    - name: Create Release
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v1.0.${{ github.run_number }}
-        name: Release v1.0.${{ github.run_number }}
-        files: app/build/outputs/apk/release/app-release-unsigned.apk
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        path: app/build/outputs/apk/release/*.apk
