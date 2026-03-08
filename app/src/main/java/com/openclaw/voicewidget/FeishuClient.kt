@@ -26,11 +26,11 @@ class FeishuClient(private val context: Context) {
     private var tenantAccessToken: String? = null
 
     /**
-     * 发送语音消息到飞书云盘
+     * 发送语音消息到飞书
      */
     suspend fun sendVoiceMessage(audioFile: File): Boolean {
         return try {
-            android.util.Log.d("FeishuClient", "Starting to upload to Feishu Drive: ${audioFile.name}")
+            android.util.Log.d("FeishuClient", "Starting to send voice message: ${audioFile.name}")
             
             // 1. 获取 tenant_access_token
             val token = getTenantAccessToken()
@@ -40,14 +40,22 @@ class FeishuClient(private val context: Context) {
             }
             android.util.Log.d("FeishuClient", "Got tenant access token")
             
-            // 2. 上传到云盘
-            val success = uploadToDrive(token, audioFile)
-            android.util.Log.d("FeishuClient", "Upload to drive result: $success")
+            // 2. 上传音频文件
+            val fileKey = uploadFile(token, audioFile)
+            if (fileKey == null) {
+                android.util.Log.e("FeishuClient", "Failed to upload file")
+                return false
+            }
+            android.util.Log.d("FeishuClient", "File uploaded, file_key: $fileKey")
+            
+            // 3. 发送消息
+            val success = sendMessage(token, fileKey)
+            android.util.Log.d("FeishuClient", "Send message result: $success")
             
             success
             
         } catch (e: Exception) {
-            android.util.Log.e("FeishuClient", "Error uploading to drive", e)
+            android.util.Log.e("FeishuClient", "Error sending voice message", e)
             e.printStackTrace()
             false
         }
@@ -136,9 +144,14 @@ class FeishuClient(private val context: Context) {
             .build()
 
         client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) return null
+            val responseBody = response.body?.string() ?: ""
+            android.util.Log.d("FeishuClient", "Upload response: $responseBody")
             
-            val responseBody = response.body?.string() ?: return null
+            if (!response.isSuccessful) {
+                android.util.Log.e("FeishuClient", "Upload failed: ${response.code}")
+                return null
+            }
+            
             // 解析 file_key
             val fileKeyMatch = Regex(""""file_key":"([^"]+)"""").find(responseBody)
             return fileKeyMatch?.groupValues?.get(1)
@@ -169,6 +182,13 @@ class FeishuClient(private val context: Context) {
             .build()
 
         client.newCall(request).execute().use { response ->
+            val responseBody = response.body?.string() ?: ""
+            android.util.Log.d("FeishuClient", "Send message response: $responseBody")
+            
+            if (!response.isSuccessful) {
+                android.util.Log.e("FeishuClient", "Send message failed: ${response.code}")
+            }
+            
             return response.isSuccessful
         }
     }
