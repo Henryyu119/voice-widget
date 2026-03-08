@@ -1,4 +1,4 @@
-package com.example.voicewidget
+package com.openclaw.voicewidget
 
 import android.Manifest
 import android.content.pm.PackageManager
