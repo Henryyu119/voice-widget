@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">快速录音</string>
+    <string name="widget_description">一键录音发送到飞书</string>
+    <string name="recording">录音中...</string>
+    <string name="sending">发送中...</string>
+    <string name="success">发送成功</string>
+    <string name="error">发送失败</string>
+    <string name="permission_required">需要录音权限</string>
+    <string name="tap_to_record">点击开始录音</string>
+    <string name="tap_to_stop">点击停止并发送</string>
+</resources>

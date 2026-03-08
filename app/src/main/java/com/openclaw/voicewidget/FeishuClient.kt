@@ -1,0 +1,136 @@
+package com.openclaw.voicewidget
+
+import android.content.Context
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
+import java.io.IOException
+
+class FeishuClient(private val context: Context) {
+
+    companion object {
+        // 飞书配置
+        private const val APP_ID = "cli_a927a647fb381bc4"
+        private const val APP_SECRET = "h1DkoMOlbHZpggRtxR1ILf2cbXakF81y"
+        private const val CHAT_ID = "oc_074f724cab241350a3afa017c3356707"
+        
+        // API 端点
+        private const val TOKEN_URL = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
+        private const val UPLOAD_URL = "https://open.feishu.cn/open-apis/im/v1/files"
+        private const val MESSAGE_URL = "https://open.feishu.cn/open-apis/im/v1/messages"
+    }
+
+    private val client = OkHttpClient()
+    private var tenantAccessToken: String? = null
+
+    /**
+     * 发送语音消息到飞书
+     */
+    suspend fun sendVoiceMessage(audioFile: File): Boolean {
+        return try {
+            // 1. 获取 tenant_access_token
+            val token = getTenantAccessToken() ?: return false
+            
+            // 2. 上传音频文件
+            val fileKey = uploadFile(token, audioFile) ?: return false
+            
+            // 3. 发送消息
+            sendMessage(token, fileKey)
+            
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    /**
+     * 获取 tenant_access_token
+     */
+    private fun getTenantAccessToken(): String? {
+        val json = """
+            {
+                "app_id": "$APP_ID",
+                "app_secret": "$APP_SECRET"
+            }
+        """.trimIndent()
+
+        val requestBody = RequestBody.create(
+            "application/json; charset=utf-8".toMediaType(),
+            json
+        )
+
+        val request = Request.Builder()
+            .url(TOKEN_URL)
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return null
+            
+            val responseBody = response.body?.string() ?: return null
+            // 简单解析 JSON (生产环境建议使用 Gson)
+            val tokenMatch = Regex(""""tenant_access_token":"([^"]+)"""").find(responseBody)
+            tenantAccessToken = tokenMatch?.groupValues?.get(1)
+            return tenantAccessToken
+        }
+    }
+
+    /**
+     * 上传文件到飞书
+     */
+    private fun uploadFile(token: String, file: File): String? {
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("file_type", "opus")
+            .addFormDataPart(
+                "file",
+                file.name,
+                file.asRequestBody("audio/mpeg".toMediaType())
+            )
+            .build()
+
+        val request = Request.Builder()
+            .url(UPLOAD_URL)
+            .header("Authorization", "Bearer $token")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return null
+            
+            val responseBody = response.body?.string() ?: return null
+            // 解析 file_key
+            val fileKeyMatch = Regex(""""file_key":"([^"]+)"""").find(responseBody)
+            return fileKeyMatch?.groupValues?.get(1)
+        }
+    }
+
+    /**
+     * 发送消息
+     */
+    private fun sendMessage(token: String, fileKey: String): Boolean {
+        val json = """
+            {
+                "receive_id": "$CHAT_ID",
+                "msg_type": "audio",
+                "content": "{\"file_key\":\"$fileKey\"}"
+            }
+        """.trimIndent()
+
+        val requestBody = RequestBody.create(
+            "application/json; charset=utf-8".toMediaType(),
+            json
+        )
+
+        val request = Request.Builder()
+            .url("$MESSAGE_URL?receive_id_type=chat_id")
+            .header("Authorization", "Bearer $token")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            return response.isSuccessful
+        }
+    }
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="飞书 App ID"
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/et_app_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="请输入 App ID"
+        android:inputType="text"
+        android:padding="12dp"
+        android:background="@drawable/button_background"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="飞书 App Secret"
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/et_app_secret"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="请输入 App Secret"
+        android:inputType="textPassword"
+        android:padding="12dp"
+        android:background="@drawable/button_background"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="如何获取：\n1. 访问飞书开放平台\n2. 创建企业自建应用\n3. 获取 App ID 和 App Secret\n4. 添加权限：im:message、im:message.group_at_msg"
+        android:textSize="12sp"
+        android:textColor="#999999"
+        android:lineSpacingExtra="4dp" />
+
+</LinearLayout>
