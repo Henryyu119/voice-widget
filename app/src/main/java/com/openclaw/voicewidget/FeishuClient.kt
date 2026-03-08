@@ -13,7 +13,7 @@ class FeishuClient(private val context: Context) {
         // 飞书配置
         private const val APP_ID = "cli_a927a647fb381bc4"
         private const val APP_SECRET = "h1DkoMOlbHZpggRtxR1ILf2cbXakF81y"
-        private const val CHAT_ID = "oc_074f724cab241350a3afa017c3356707"
+        private const val USER_ID = "ou_0ae310fc167977f6add924cb8da58b20"  // 你的飞书用户 ID
         
         // API 端点
         private const val TOKEN_URL = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
@@ -29,16 +29,32 @@ class FeishuClient(private val context: Context) {
      */
     suspend fun sendVoiceMessage(audioFile: File): Boolean {
         return try {
+            android.util.Log.d("FeishuClient", "Starting to send voice message: ${audioFile.name}")
+            
             // 1. 获取 tenant_access_token
-            val token = getTenantAccessToken() ?: return false
+            val token = getTenantAccessToken()
+            if (token == null) {
+                android.util.Log.e("FeishuClient", "Failed to get tenant access token")
+                return false
+            }
+            android.util.Log.d("FeishuClient", "Got tenant access token")
             
             // 2. 上传音频文件
-            val fileKey = uploadFile(token, audioFile) ?: return false
+            val fileKey = uploadFile(token, audioFile)
+            if (fileKey == null) {
+                android.util.Log.e("FeishuClient", "Failed to upload file")
+                return false
+            }
+            android.util.Log.d("FeishuClient", "File uploaded, file_key: $fileKey")
             
             // 3. 发送消息
-            sendMessage(token, fileKey)
+            val success = sendMessage(token, fileKey)
+            android.util.Log.d("FeishuClient", "Send message result: $success")
+            
+            success
             
         } catch (e: Exception) {
+            android.util.Log.e("FeishuClient", "Error sending voice message", e)
             e.printStackTrace()
             false
         }
@@ -112,7 +128,7 @@ class FeishuClient(private val context: Context) {
     private fun sendMessage(token: String, fileKey: String): Boolean {
         val json = """
             {
-                "receive_id": "$CHAT_ID",
+                "receive_id": "$USER_ID",
                 "msg_type": "audio",
                 "content": "{\"file_key\":\"$fileKey\"}"
             }
@@ -124,7 +140,7 @@ class FeishuClient(private val context: Context) {
         )
 
         val request = Request.Builder()
-            .url("$MESSAGE_URL?receive_id_type=chat_id")
+            .url("$MESSAGE_URL?receive_id_type=open_id")
             .header("Authorization", "Bearer $token")
             .post(requestBody)
             .build()
