@@ -3,62 +3,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center">
+    android:gravity="center"
+    android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tv_title"
+    <Button
+        android:id="@+id/recordButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="快速录音 Widget"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#333333"
-        android:layout_marginBottom="16dp" />
-
-    <TextView
-        android:id="@+id/tv_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="请将 Widget 添加到桌面，点击即可快速录音并发送到飞书。"
-        android:textSize="16sp"
-        android:textColor="#666666"
-        android:gravity="center"
-        android:layout_marginBottom="32dp" />
-
-    <Button
-        android:id="@+id/btn_add_widget"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="📱 如何添加 Widget"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:layout_marginBottom="12dp" />
-
-    <Button
-        android:id="@+id/btn_configure"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="⚙️ 配置飞书"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:layout_marginBottom="12dp" />
-
-    <Button
-        android:id="@+id/btn_permissions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="🔐 检查权限"
-        android:textSize="16sp"
+        android:text="开始录音"
+        android:textSize="18sp"
         android:padding="16dp" />
 
     <TextView
+        android:id="@+id/statusText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="提示：首次使用需要授予录音权限"
-        android:textSize="14sp"
-        android:textColor="#999999"
+        android:layout_marginTop="24dp"
+        android:text="准备就绪"
+        android:textSize="16sp"
         android:gravity="center"
-        android:layout_marginTop="24dp" />
+        android:padding="16dp"
+        android:background="#f0f0f0" />
 
 </LinearLayout>
