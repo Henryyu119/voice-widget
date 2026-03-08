@@ -64,10 +64,13 @@ class RecordingService : Service() {
     }
 
     private fun startRecordingInternal() {
+        android.util.Log.d("RecordingService", "startRecordingInternal called")
         try {
             // 创建音频文件
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
             audioFile = File(cacheDir, "voice_$timestamp.m4a")
+            
+            android.util.Log.d("RecordingService", "Audio file: ${audioFile?.absolutePath}")
             
             // 初始化 MediaRecorder
             mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -88,6 +91,8 @@ class RecordingService : Service() {
             
             startTime = System.currentTimeMillis()
             
+            android.util.Log.d("RecordingService", "Recording started successfully")
+            
             // 更新状态
             updatePrefs(true)
             startForeground(NOTIFICATION_ID, createNotification("录音中..."))
@@ -96,6 +101,8 @@ class RecordingService : Service() {
             startDurationUpdates()
             
         } catch (e: Exception) {
+            android.util.Log.e("RecordingService", "Error starting recording", e)
+            android.widget.Toast.makeText(this, "录音失败: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
             e.printStackTrace()
             stopSelf()
         }

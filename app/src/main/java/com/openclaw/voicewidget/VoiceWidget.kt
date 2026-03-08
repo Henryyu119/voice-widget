@@ -28,9 +28,18 @@ class VoiceWidget : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         
+        android.util.Log.d("VoiceWidget", "onReceive: action=${intent.action}")
+        
         if (intent.action == ACTION_RECORD_TOGGLE) {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val isRecording = prefs.getBoolean(PREF_IS_RECORDING, false)
+            
+            android.util.Log.d("VoiceWidget", "Toggle recording: isRecording=$isRecording")
+            
+            // 显示 Toast 确认点击
+            android.widget.Toast.makeText(context, 
+                if (isRecording) "停止录音..." else "开始录音...", 
+                android.widget.Toast.LENGTH_SHORT).show()
             
             if (isRecording) {
                 // 停止录音并发送
