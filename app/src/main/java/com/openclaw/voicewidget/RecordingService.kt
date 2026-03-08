@@ -165,6 +165,11 @@ class RecordingService : Service() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIFICATION_ID, notification)
         
+        // Toast 提示
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            android.widget.Toast.makeText(this, "正在发送到飞书...", android.widget.Toast.LENGTH_SHORT).show()
+        }
+        
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val feishuClient = FeishuClient(this@RecordingService)
@@ -173,6 +178,15 @@ class RecordingService : Service() {
                 val message = if (success) "发送成功" else "发送失败"
                 val finalNotification = createNotification(message)
                 notificationManager.notify(NOTIFICATION_ID, finalNotification)
+                
+                // Toast 提示结果
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    android.widget.Toast.makeText(
+                        this@RecordingService, 
+                        if (success) "✅ 已发送到飞书" else "❌ 发送失败，请检查网络", 
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                }
                 
                 // 2秒后关闭通知
                 handler.postDelayed({
@@ -184,6 +198,14 @@ class RecordingService : Service() {
                 e.printStackTrace()
                 val errorNotification = createNotification("发送失败: ${e.message}")
                 notificationManager.notify(NOTIFICATION_ID, errorNotification)
+                
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    android.widget.Toast.makeText(
+                        this@RecordingService, 
+                        "❌ 发送错误: ${e.message}", 
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }
