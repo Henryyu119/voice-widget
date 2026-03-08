@@ -86,24 +86,42 @@ class VoiceWidget : AppWidgetProvider() {
     }
 
     fun updateWidgetState(context: Context, isRecording: Boolean, duration: String = "") {
+        android.util.Log.d("VoiceWidget", "updateWidgetState: isRecording=$isRecording, duration=$duration")
+        
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(
             android.content.ComponentName(context, VoiceWidget::class.java)
         )
+        
+        android.util.Log.d("VoiceWidget", "Found ${appWidgetIds.size} widgets to update")
         
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_voice)
             
             if (isRecording) {
                 views.setTextViewText(R.id.btn_record, "🔴")
-                views.setTextViewText(R.id.tv_status, context.getString(R.string.tap_to_stop))
-                views.setTextViewText(R.id.tv_duration, duration)
-                views.setViewVisibility(R.id.tv_duration, android.view.View.VISIBLE)
+                views.setTextViewText(R.id.tv_status, "录音中 - 点击停止")
+                if (duration.isNotEmpty()) {
+                    views.setTextViewText(R.id.tv_duration, duration)
+                    views.setViewVisibility(R.id.tv_duration, android.view.View.VISIBLE)
+                }
             } else {
                 views.setTextViewText(R.id.btn_record, "🎤")
-                views.setTextViewText(R.id.tv_status, context.getString(R.string.tap_to_record))
+                views.setTextViewText(R.id.tv_status, "点击开始录音")
                 views.setViewVisibility(R.id.tv_duration, android.view.View.GONE)
             }
+            
+            // 重新设置点击事件
+            val intent = Intent(context, VoiceWidget::class.java).apply {
+                action = ACTION_RECORD_TOGGLE
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.btn_record, pendingIntent)
             
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
