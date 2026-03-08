@@ -18,6 +18,7 @@ class FeishuClient(private val context: Context) {
         // API 端点
         private const val TOKEN_URL = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
         private const val UPLOAD_URL = "https://open.feishu.cn/open-apis/im/v1/files"
+        private const val DRIVE_UPLOAD_URL = "https://open.feishu.cn/open-apis/drive/v1/medias/upload_all"
         private const val MESSAGE_URL = "https://open.feishu.cn/open-apis/im/v1/messages"
     }
 
@@ -25,11 +26,11 @@ class FeishuClient(private val context: Context) {
     private var tenantAccessToken: String? = null
 
     /**
-     * 发送语音消息到飞书
+     * 发送语音消息到飞书云盘
      */
     suspend fun sendVoiceMessage(audioFile: File): Boolean {
         return try {
-            android.util.Log.d("FeishuClient", "Starting to send voice message: ${audioFile.name}")
+            android.util.Log.d("FeishuClient", "Starting to upload to Feishu Drive: ${audioFile.name}")
             
             // 1. 获取 tenant_access_token
             val token = getTenantAccessToken()
@@ -39,22 +40,14 @@ class FeishuClient(private val context: Context) {
             }
             android.util.Log.d("FeishuClient", "Got tenant access token")
             
-            // 2. 上传音频文件
-            val fileKey = uploadFile(token, audioFile)
-            if (fileKey == null) {
-                android.util.Log.e("FeishuClient", "Failed to upload file")
-                return false
-            }
-            android.util.Log.d("FeishuClient", "File uploaded, file_key: $fileKey")
-            
-            // 3. 发送消息
-            val success = sendMessage(token, fileKey)
-            android.util.Log.d("FeishuClient", "Send message result: $success")
+            // 2. 上传到云盘
+            val success = uploadToDrive(token, audioFile)
+            android.util.Log.d("FeishuClient", "Upload to drive result: $success")
             
             success
             
         } catch (e: Exception) {
-            android.util.Log.e("FeishuClient", "Error sending voice message", e)
+            android.util.Log.e("FeishuClient", "Error uploading to drive", e)
             e.printStackTrace()
             false
         }
@@ -89,6 +82,36 @@ class FeishuClient(private val context: Context) {
             val tokenMatch = Regex(""""tenant_access_token":"([^"]+)"""").find(responseBody)
             tenantAccessToken = tokenMatch?.groupValues?.get(1)
             return tenantAccessToken
+        }
+    }
+
+    /**
+     * 上传文件到飞书云盘
+     */
+    private fun uploadToDrive(token: String, file: File): Boolean {
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("file_name", file.name)
+            .addFormDataPart("parent_type", "explorer")
+            .addFormDataPart("parent_node", "0")  // 0 表示根目录
+            .addFormDataPart("size", file.length().toString())
+            .addFormDataPart(
+                "file",
+                file.name,
+                file.asRequestBody("audio/mpeg".toMediaType())
+            )
+            .build()
+
+        val request = Request.Builder()
+            .url(DRIVE_UPLOAD_URL)
+            .header("Authorization", "Bearer $token")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            val responseBody = response.body?.string() ?: ""
+            android.util.Log.d("FeishuClient", "Drive upload response: $responseBody")
+            return response.isSuccessful
         }
     }
 
