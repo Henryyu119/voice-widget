@@ -12,10 +12,13 @@ class WebhookClient {
 
     fun sendText(text: String): Result<Unit> {
         return try {
+            // 自动 @Jason (user_id: ou_0ae310fc167977f6add924cb8da58b20)
             val bodyJson = gson.toJson(
                 mapOf(
                     "msg_type" to "text",
-                    "content" to mapOf("text" to text)
+                    "content" to mapOf(
+                        "text" to "<at user_id=\"ou_0ae310fc167977f6add924cb8da58b20\">Jason</at> $text"
+                    )
                 )
             )
 
