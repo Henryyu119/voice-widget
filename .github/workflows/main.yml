@@ -30,3 +30,13 @@ jobs:
       with:
         name: voice-widget-release
         path: app/build/outputs/apk/release/*.apk
+    
+    - name: Create Release
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v1.2.${{ github.run_number }}
+        name: Release v1.2.${{ github.run_number }}
+        files: app/build/outputs/apk/release/*.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
