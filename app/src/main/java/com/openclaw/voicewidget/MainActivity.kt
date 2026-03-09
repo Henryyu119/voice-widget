@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, TextEntryActivity::class.java))
         }
 
-        findViewById<TextView>(R.id.tvWebhookUrl).text = AppConfig.FEISHU_WEBHOOK_URL
-        findViewById<TextView>(R.id.tvVoiceApi).text = AppConfig.VPS_BASE_URL + AppConfig.VPS_UPLOAD_ENDPOINT
+        findViewById<TextView>(R.id.tvWebhookUrl).text = AppConfig.WIDGET_API_URL
+        findViewById<TextView>(R.id.tvVoiceApi).text = "Jason 中转 API（Bearer 已内置）"
     }
 }

@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlin.concurrent.thread
 
 class TextEntryActivity : AppCompatActivity() {
-    private val webhookClient = WebhookClient()
+    private val widgetApiClient = WidgetApiClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +35,7 @@ class TextEntryActivity : AppCompatActivity() {
 
             sendButton.isEnabled = false
             thread {
-                val result = webhookClient.sendText(text)
+                val result = widgetApiClient.sendText(text)
                 runOnUiThread {
                     sendButton.isEnabled = true
                     if (result.isSuccess) {
@@ -43,7 +43,14 @@ class TextEntryActivity : AppCompatActivity() {
                         Toast.makeText(this, "发送成功", Toast.LENGTH_SHORT).show()
                         finish()
                     } else {
-                        Toast.makeText(this, "发送失败: ${result.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                        val msg = result.exceptionOrNull()?.message.orEmpty()
+                        val tip = when {
+                            msg.contains("429") -> "发送太快，请稍后"
+                            msg.contains("401") -> "认证失败"
+                            msg.contains("Failed to connect") || msg.contains("timeout", true) -> "网络不可用"
+                            else -> "服务异常：$msg"
+                        }
+                        Toast.makeText(this, tip, Toast.LENGTH_LONG).show()
                     }
                 }
             }
