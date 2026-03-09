@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="🎤 语音日记"
+        android:text="🎙️ 输入法语音记录"
         android:textSize="22sp"
         android:padding="20dp" />
 

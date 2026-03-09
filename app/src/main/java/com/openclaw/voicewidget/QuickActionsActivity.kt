@@ -15,10 +15,7 @@ class QuickActionsActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnVoiceDiary).setOnClickListener {
-            val serviceIntent = Intent(this, RecordingService::class.java).apply {
-                action = RecordingService.ACTION_START
-            }
-            startForegroundService(serviceIntent)
+            startActivity(Intent(this, TextEntryActivity::class.java))
             finish()
         }
     }

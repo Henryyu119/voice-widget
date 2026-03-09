@@ -32,15 +32,6 @@
             android:exported="false" />
 
         <activity
-            android:name=".ConfirmActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".SpeechRecognizerActivity"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -62,26 +53,6 @@
                 android:resource="@xml/text_widget_info" />
         </receiver>
 
-        <!-- 语音 Widget -->
-        <receiver
-            android:name=".VoiceWidget"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.openclaw.voicewidget.action.TOGGLE_RECORDING" />
-                <action android:name="com.openclaw.voicewidget.action.STATUS_CHANGED" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info" />
-        </receiver>
-
-        <!-- 录音服务 -->
-        <service
-            android:name=".RecordingService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="microphone" />
 
     </application>
 
