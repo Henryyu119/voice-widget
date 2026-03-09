@@ -28,7 +28,7 @@
             android:id="@+id/btnOpenQuickActions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="打开快捷页" />
+            android:text="打开发送页" />
 
         <Button
             android:id="@+id/btnOpenTextEntry"

@@ -12,7 +12,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<Button>(R.id.btnOpenQuickActions).setOnClickListener {
-            startActivity(Intent(this, QuickActionsActivity::class.java))
+            startActivity(Intent(this, TextEntryActivity::class.java))
         }
 
         findViewById<Button>(R.id.btnOpenTextEntry).setOnClickListener {
