@@ -12,26 +12,50 @@ class WebhookClient {
 
     fun sendText(text: String): Result<Unit> {
         return try {
-            // 自动 @Jason (使用 user_id，飞书会自动显示正确的名字)
-            val bodyJson = gson.toJson(
+            // 第一步：获取 tenant_access_token
+            val tokenRequest = Request.Builder()
+                .url("https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal")
+                .addHeader("Content-Type", "application/json")
+                .post(
+                    gson.toJson(
+                        mapOf(
+                            "app_id" to AppConfig.FEISHU_APP_ID,
+                            "app_secret" to AppConfig.FEISHU_APP_SECRET
+                        )
+                    ).toRequestBody("application/json".toMediaType())
+                )
+                .build()
+
+            val token = client.newCall(tokenRequest).execute().use { response ->
+                val body = response.body?.string().orEmpty()
+                if (!response.isSuccessful) {
+                    return Result.failure(IllegalStateException("获取token失败: HTTP ${response.code}"))
+                }
+                val tokenData = gson.fromJson(body, Map::class.java)
+                tokenData["tenant_access_token"] as? String
+                    ?: return Result.failure(IllegalStateException("token解析失败"))
+            }
+
+            // 第二步：发送消息到群
+            val messageBody = gson.toJson(
                 mapOf(
+                    "receive_id" to AppConfig.FEISHU_CHAT_ID,
                     "msg_type" to "text",
-                    "content" to mapOf(
-                        "text" to "<at user_id=\"ou_d455238f2d901e2d86034c8adda408c3\"></at> $text"
-                    )
+                    "content" to gson.toJson(mapOf("text" to text))
                 )
             )
 
-            val request = Request.Builder()
-                .url(AppConfig.FEISHU_WEBHOOK_URL)
+            val messageRequest = Request.Builder()
+                .url("https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=chat_id")
+                .addHeader("Authorization", "Bearer $token")
                 .addHeader("Content-Type", "application/json; charset=utf-8")
-                .post(bodyJson.toRequestBody("application/json; charset=utf-8".toMediaType()))
+                .post(messageBody.toRequestBody("application/json; charset=utf-8".toMediaType()))
                 .build()
 
-            client.newCall(request).execute().use { response ->
+            client.newCall(messageRequest).execute().use { response ->
                 val body = response.body?.string().orEmpty()
                 if (!response.isSuccessful) {
-                    return Result.failure(IllegalStateException("HTTP ${response.code}: $body"))
+                    return Result.failure(IllegalStateException("发送消息失败: HTTP ${response.code}: $body"))
                 }
                 Result.success(Unit)
             }
