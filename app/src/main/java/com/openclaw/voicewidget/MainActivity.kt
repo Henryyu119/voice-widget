@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_RECORD_AUDIO_PERMISSION = 200
-        private const val SERVER_URL = "http://43.163.97.77:3000/upload"
+        private const val SERVER_URL = "http://43.163.97.77:3002/api/diary/voice"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
