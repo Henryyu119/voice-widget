@@ -24,6 +24,23 @@
 
         <!-- 主界面 -->
         <activity
+            android:name=".TextEntryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".QuickActionsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ConfirmActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SpeechRecognizerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -32,12 +49,27 @@
             </intent-filter>
         </activity>
 
-        <!-- Widget -->
+        <!-- 文本 Widget -->
+        <receiver
+            android:name=".TextWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.openclaw.voicewidget.action.OPEN_TEXT_ENTRY" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/text_widget_info" />
+        </receiver>
+
+        <!-- 语音 Widget -->
         <receiver
             android:name=".VoiceWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.openclaw.voicewidget.action.TOGGLE_RECORDING" />
+                <action android:name="com.openclaw.voicewidget.action.STATUS_CHANGED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

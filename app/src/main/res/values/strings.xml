@@ -9,4 +9,5 @@
     <string name="permission_required">需要录音权限</string>
     <string name="tap_to_record">点击开始录音</string>
     <string name="tap_to_stop">点击停止并发送</string>
+    <string name="widget_text_description">快速文字记录并发送到飞书群</string>
 </resources>
