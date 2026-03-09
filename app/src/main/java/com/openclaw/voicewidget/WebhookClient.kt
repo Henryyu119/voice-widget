@@ -36,17 +36,17 @@ class WebhookClient {
                     ?: return Result.failure(IllegalStateException("token解析失败"))
             }
 
-            // 第二步：发送消息到群
+            // 第二步：发送消息到私聊（以机器人身份发送）
             val messageBody = gson.toJson(
                 mapOf(
-                    "receive_id" to AppConfig.FEISHU_CHAT_ID,
+                    "receive_id" to "ou_d455238f2d901e2d86034c8adda408c3", // Jason 的 open_id
                     "msg_type" to "text",
                     "content" to gson.toJson(mapOf("text" to text))
                 )
             )
 
             val messageRequest = Request.Builder()
-                .url("https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=chat_id")
+                .url("https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id")
                 .addHeader("Authorization", "Bearer $token")
                 .addHeader("Content-Type", "application/json; charset=utf-8")
                 .post(messageBody.toRequestBody("application/json; charset=utf-8".toMediaType()))
